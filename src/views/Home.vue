@@ -9,16 +9,15 @@
 <!--          <div class="contacts__ava">-->
 <!--            <img :src="contact.avatar" alt="contact picture">-->
 <!--          </div>-->
-
-          <div class="contacts__name"><font-awesome-icon class="contacts__edit" icon="pen" @click="editContact()" /><span @click="toggleSlide($event.target)">{{ idx + 1 }} | {{ contact.name }}</span></div>
+          <div class="contacts__name"><div :data-id="idx" @click.stop="editContact($event)" >ред.</div><span @click="toggleSlide($event.target)">{{ idx + 1 }} | {{ contact.name }}</span></div>
           <div class="contacts__description">
-            <p>username: {{contact.username}}</p>
-            <p>phone: {{ contact.phone }}</p>
-            <p>email: {{contact.email}}</p>
-            <p>address: {{ contact.address.country }}, {{ contact.address.city }},
+            <p> <b>username:</b> {{contact.username}}</p>
+            <p> <b>phone:</b> {{ contact.phone }}</p>
+            <p> <b>email:</b> {{contact.email}}</p>
+            <p> <b>address:</b> {{ contact.address.country }}, {{ contact.address.city }},
               {{ contact.address.streetA }}, {{ contact.address.streetB }},
               {{ contact.address.streetC }}, {{ contact.address.streetD }}</p>
-            <p class="contacts__favorite"> favorite - <input v-model="contact.favorite" :checked="contact.favorite" type="checkbox"> </p>
+            <p class="contacts__favorite"> <b>favorite -</b> <input v-model="contact.favorite" :checked="contact.favorite" type="checkbox"> </p>
           </div>
         </li>
       </ul>
@@ -36,6 +35,8 @@ export default {
       contacts: [],
       err: false,
       searchContact: '',
+      notEdited: {},
+      edited: {},
     }
   },
   computed: {
@@ -50,9 +51,6 @@ export default {
           return (contact.name.toLowerCase().indexOf(this.searchContact.toLowerCase()) !== -1) ||
                  (contact.username.toLowerCase().indexOf(this.searchContact.toLowerCase()) !== -1);
       });
-    },
-    dataArray(){
-      return this.contacts.map((el) => el.name && el.username && el.phone && el.email && el.address && el.favorite);
     }
   },
   mounted(){
@@ -82,8 +80,11 @@ export default {
         $(ev).parent(".contacts__name").siblings('.contacts__description').slideToggle();
         $(ev).toggleClass('active');
     },
-    editContact(){
-      console.log("Редактирование");
+
+    editContact(e){
+      let index = $(e.target).attr("data-id");
+      console.log(index);
+      console.log(this.searchedContacts[index]);
     }
   },
   components: {
@@ -149,6 +150,8 @@ export default {
     &__item{}
     &__edit{
       margin-right: 10px;
+      position: absolute;
+      z-index: 0;
     }
     &__name{
       display: flex;
@@ -156,42 +159,54 @@ export default {
       font-size: 18px;
       font-weight: bold;
       cursor: pointer;
-      span{
+      div{
+        font-size: 13px;
         position: relative;
-        &:before,
-        &:after{
-          content: "";
-          position: absolute;
-          display: block;
-          width: 10px;
-          height: 2px;
-          background: #eeeeee;
-          top: 50%;
-          transition: .5s all ease;
-        }
-        &:before{
-          transform: rotate(45deg);
-          right: -30px;
-        }
-        &:after{
-          transform: rotate(-45deg);
-          right: -36px;
-        }
-        &.active{
+        background: red;
+        z-index: 2;
+        padding: 5px;
+        margin-right: 10px;
+      }
+      span{
+          position: relative;
+          &:before,
+          &:after{
+            content: "";
+            position: absolute;
+            display: block;
+            width: 10px;
+            height: 2px;
+            background: #eeeeee;
+            top: 50%;
+            transition: .5s all ease;
+          }
           &:before{
-            transform: rotate(-45deg);
+            transform: rotate(45deg);
+            right: -30px;
           }
           &:after{
-            transform: rotate(45deg);
+            transform: rotate(-45deg);
+            right: -36px;
           }
-        }
+          &.active{
+            &:before{
+              transform: rotate(-45deg);
+            }
+            &:after{
+              transform: rotate(45deg);
+            }
+          }
       }
     }
     &__description{
       display: none;
-      padding: 10px 0px 0px 5px;
+      padding: 10px 0px 0px 45px;
       p{
+        line-height: 20px;
         margin-bottom: 5px;
+        b{
+          color: wheat;
+        }
       }
     }
   }
