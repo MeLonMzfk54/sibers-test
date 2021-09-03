@@ -9,7 +9,8 @@
 <!--          <div class="contacts__ava">-->
 <!--            <img :src="contact.avatar" alt="contact picture">-->
 <!--          </div>-->
-          <div class="contacts__name"><span @click.stop="toggleSlide($event.target)">{{ idx + 1 }} | {{ contact.name }}</span></div>
+
+          <div class="contacts__name"><font-awesome-icon class="contacts__edit" icon="pen" @click="editContact()" /><span @click="toggleSlide($event.target)">{{ idx + 1 }} | {{ contact.name }}</span></div>
           <div class="contacts__description">
             <p>username: {{contact.username}}</p>
             <p>phone: {{ contact.phone }}</p>
@@ -49,19 +50,29 @@ export default {
           return (contact.name.toLowerCase().indexOf(this.searchContact.toLowerCase()) !== -1) ||
                  (contact.username.toLowerCase().indexOf(this.searchContact.toLowerCase()) !== -1);
       });
+    },
+    dataArray(){
+      return this.contacts.map((el) => el.name && el.username && el.phone && el.email && el.address && el.favorite);
     }
   },
   mounted(){
     /*
-    * Getting initial data or throwing an error
+    * Getting initial data, saving to localStorage or throwing an error
     * */
-    this.$axios
-        .get('https://demo.sibers.com/users')
-        .then(response =>  this.contacts = response.data)
-        .catch(error => {
-          console.log(error);
-          this.err = true;
-        });
+    if(localStorage.getItem('contacts') !== null){
+      this.contacts = JSON.parse(localStorage.getItem("contacts") || []);
+    }else{
+      this.$axios
+          .get('https://demo.sibers.com/users')
+          .then(response => {
+            localStorage.setItem('contacts',JSON.stringify(response.data));
+            this.contacts = response.data;
+          })
+          .catch(error => {
+            console.log(error);
+            this.err = true;
+          });
+    }
   },
   methods:{
     /*
@@ -70,6 +81,9 @@ export default {
     toggleSlide(ev){
         $(ev).parent(".contacts__name").siblings('.contacts__description').slideToggle();
         $(ev).toggleClass('active');
+    },
+    editContact(){
+      console.log("Редактирование");
     }
   },
   components: {
@@ -133,8 +147,12 @@ export default {
       gap: 20px;
     }
     &__item{}
-
+    &__edit{
+      margin-right: 10px;
+    }
     &__name{
+      display: flex;
+      align-items: center;
       font-size: 18px;
       font-weight: bold;
       cursor: pointer;
